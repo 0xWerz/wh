@@ -1,0 +1,34 @@
+#!/bin/python3
+
+from prettytable import PrettyTable
+import requests, lxml, sys
+from bs4 import BeautifulSoup as bs
+def main():
+    par = []
+    if len(sys.argv) < 2:
+        print("-h for help")
+    elif sys.argv[1] == '-h':
+        print('./wh <command> <switches>\nExample:\n./wh nmap -T4')
+    else:
+        try:
+            for c in sys.argv:
+                par.append(c)
+            del par[0]
+            params = '+'.join(par)
+            URL = f'https://explainshell.com/explain?cmd={params}'
+            rq = requests.get(URL).text
+            if 'No man page found for' in rq:
+                print(f'No man page found for {par[0]}')
+            else:
+                parser = bs(rq, features="lxml")
+                t = PrettyTable(['command', 'description'])
+                for i in range(len(par)):
+                    swt = parser.find(id=f'help-{i}').text
+                    t.add_row([f'{par[i].capitalize()}', swt])
+                print(t)
+        except Exception and AttributeError:
+            pass
+        ""
+if __name__ == '__main__':
+    main()
+
